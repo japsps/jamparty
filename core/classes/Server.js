@@ -3,8 +3,11 @@
  * Manages the HTTP server lifecycle
  */
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const Core = require('./Core');
 const Logger = require('../utils/logger');
+const helper = require('./core/helper'); // Cleaned up and moved to the top
 
 class Server {
   /**
@@ -27,14 +30,27 @@ class Server {
    * Start the server
    * @returns {http.Server} The HTTP server instance
    */
-  start() {
+  async start() { // Made the start method async itself
     this.logger.info(`Starting OpenParty server...`);
     
-    // Create and start the HTTP server
-    this.server = this.app.listen(this.port, this.host, async () => { // Made callback async
-      // Initialize the core and await its completion
-      await this.core.init(this.app, express, this.server);
-      
+    // 1. Handle DB schema recreation safely before boot
+    // WARNING: Remove this block if you want data to persist between restarts!
+    try {
+      const dbPath = path.join(helper.getSavefilePath(), 'openparty.db');
+      if (fs.existsSync(dbPath)) {
+        fs.unlinkSync(dbPath);
+        this.logger.info('[DB] Removed old database to recreate schema.');
+      }
+    } catch (err) {
+      this.logger.error(`Failed to handle database initialization: ${err.message}`);
+    }
+
+    // 2. Initialize Core logic BEFORE opening the network port
+    // This avoids race conditions where requests hit an unconfigured Express app
+    await this.core.init(this.app, express, this.server);
+    
+    // 3. Create and start the HTTP server
+    this.server = this.app.listen(this.port, this.host, () => {
       this.logger.info(`Listening on ${this.host}:${this.port}`);
       this.logger.info(`Open panel to see more logs`);
       this.logger.info(`Running in ${process.env.NODE_ENV || 'development'} mode`);
