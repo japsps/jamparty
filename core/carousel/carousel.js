@@ -206,6 +206,13 @@ exports.generateCarousel = async (search, type = "partyMap", profileId = null) =
     processPlaylists(loadJsonFile('carousel/playlist.json', '../database/data/carousel/playlist.json'), type);
     addJDVersion(allSongMapNames, type);
     addCategories(generateCategories(`Most Played Weekly!`, CloneObject(await MostPlayedService.getGlobalPlayedSong()), type));
+    
+    // Add "Just Dance Unlimited" category with all songs that have "subscribedSong" tag
+    const unlimitedSongs = SongService.filterSongsByTags(allSongMapNames, 'subscribedSong');
+    if (unlimitedSongs.length > 0) {
+        addCategories(generateCategories("Just Dance Unlimited", CloneObject(unlimitedSongs), type));
+    }
+
     addCategories(Object.assign({}, cClass.searchCategoryClass));
     if (search !== "") {
       addCategories(generateCategories(`[icon:SEARCH_RESULT] Result Of: ${search}`, CloneObject(SongService.filterSongsBySearch(allSongMapNames, search)), type));
