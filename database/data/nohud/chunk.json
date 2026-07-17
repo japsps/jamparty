@@ -1,9 +1,9 @@
 {
-  "Despacito": {
-    "jmcs://jd-contents/Despacito/Despacito_ULTRA.webm": "https://mirror.bc5f39.workers.dev/https://cdn.glitch.com/c6807563-9703-4452-bd7b-b06e822ec772/Despacito_ULTRA.webm",
-    "jmcs://jd-contents/Despacito/Despacito_MID.webm": "https://mirror.bc5f39.workers.dev/https://cdn.glitch.com/c6807563-9703-4452-bd7b-b06e822ec772/Despacito_MID.webm",
-    "jmcs://jd-contents/Despacito/Despacito_LOW.webm": "https://mirror.bc5f39.workers.dev/https://cdn.glitch.com/c6807563-9703-4452-bd7b-b06e822ec772/Despacito_LOW.webm",
-    "jmcs://jd-contents/Despacito/Despacito_HIGH.webm": "https://mirror.bc5f39.workers.dev/https://cdn.glitch.com/c6807563-9703-4452-bd7b-b06e822ec772/Despacito_HIGH.webm",
-    "jmcs://jd-contents/Despacito/Despacito.ogg": "https://mirror.bc5f39.workers.dev/https://cdn.glitch.com/c6807563-9703-4452-bd7b-b06e822ec772/Despacito.ogg"
+  "JDCGeeBETA": {
+    "jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_ULTRA.webm": "https://jd-jamsters.s3.us-east-005.backblazeb2.com/maps/JDCGeeBETA/JDCGeeBETA_ULTRA.webm",
+    "jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_MID.webm": "https://jd-jamsters.s3.us-east-005.backblazeb2.com/maps/JDCGeeBETA/JDCGeeBETA_MID.webm",
+    "jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_LOW.webm": "https://jd-jamsters.s3.us-east-005.backblazeb2.com/maps/JDCGeeBETA/JDCGeeBETA_LOW.webm",
+    "jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_HIGH.webm": "https://jd-jamsters.s3.us-east-005.backblazeb2.com/maps/JDCGeeBETA/JDCGeeBETA_HIGH.webm",
+    "jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA.ogg": "https://jd-jamsters.s3.us-east-005.backblazeb2.com/maps/JDCGeeBETA/JDCGeeBETA.ogg"
   }
 }
