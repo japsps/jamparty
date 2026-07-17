@@ -18,38 +18,36 @@ class CarouselRouteHandler extends RouteHandler {
         this.handleUpsellVideos = this.handleUpsellVideos.bind(this);
     }
 
-    /**
-     * Initialize the routes
-     * @param {Express} app - The Express application instance
-     */
     initroute(app) {
         this.logger.info(`Initializing routes...`);
 
-        // --- Custom middleware for carousel to handle malformed JSON ---
-        // This runs BEFORE the global JSON parser (which is bypassed for this route)
+        // Custom middleware to handle malformed JSON (single quotes) for carousel routes
         app.use('/carousel/v2/pages/:mode', (req, res, next) => {
-            // We already captured rawBody in Core.js using verify
-            if (req.rawBody) {
-                let bodyString = req.rawBody;
-                // Remove surrounding single quotes if present (the game/proxy adds them)
-                if (bodyString.startsWith("'") && bodyString.endsWith("'")) {
-                    bodyString = bodyString.slice(1, -1);
+            // Capture raw body manually (since we skipped the global parser)
+            let rawBody = '';
+            req.on('data', chunk => { rawBody += chunk; });
+            req.on('end', () => {
+                if (rawBody) {
+                    let bodyString = rawBody;
+                    // Remove surrounding single quotes if present
+                    if (bodyString.startsWith("'") && bodyString.endsWith("'")) {
+                        bodyString = bodyString.slice(1, -1);
+                    }
+                    try {
+                        req.body = JSON.parse(bodyString);
+                    } catch (e) {
+                        this.logger.error(`Failed to parse carousel body: ${e.message}`);
+                        this.logger.error(`Raw body was: ${rawBody}`);
+                        return res.status(400).json({ error: 'Invalid JSON body' });
+                    }
+                } else {
+                    req.body = {};
                 }
-                try {
-                    req.body = JSON.parse(bodyString);
-                } catch (e) {
-                    this.logger.error(`Failed to parse carousel body: ${e.message}`);
-                    this.logger.error(`Raw body was: ${req.rawBody}`);
-                    return res.status(400).json({ error: 'Invalid JSON body' });
-                }
-            } else {
-                // Fallback if rawBody isn't captured (shouldn't happen)
-                req.body = req.body || {};
-            }
-            next();
+                next();
+            });
         });
 
-        // Register routes (the global JSON parser is still used for other routes, but this route's body is already set)
+        // Register routes
         this.registerPost(app, "/carousel/v2/pages/avatars", this.handleCarousel);
         this.registerPost(app, "/carousel/v2/pages/dancerprofile", this.handleCarousel);
         this.registerPost(app, "/carousel/v2/pages/jdtv", this.handleCarousel);
@@ -61,11 +59,6 @@ class CarouselRouteHandler extends RouteHandler {
         this.logger.info(`Routes initialized`);
     }
 
-    /**
-     * Handle carousel requests for static data (avatars, dancerprofile, jdtv, quests)
-     * @param {Request} req - The request object
-     * @param {Response} res - The response object
-     */
     handleCarousel(req, res) {
         const path = req.path.split('/').pop();
         switch (path) {
@@ -87,11 +80,6 @@ class CarouselRouteHandler extends RouteHandler {
         }
     }
 
-    /**
-     * Handle carousel pages requests for dynamic content (party, sweat, challenges)
-     * @param {Request} req - The request object
-     * @param {Response} res - The response object
-     */
     async handleCarouselPages(req, res) {
         let search = "";
         if (req.body.searchString && req.body.searchString != "") {
@@ -135,11 +123,6 @@ class CarouselRouteHandler extends RouteHandler {
         return res.json({});
     }
 
-    /**
-     * Handle upsell videos requests
-     * @param {Request} req - The request object
-     * @param {Response} res - The response object
-     */
     handleUpsellVideos(req, res) {
         res.send(coreMain.upsellvideos);
     }
