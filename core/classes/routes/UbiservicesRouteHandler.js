@@ -88,9 +88,6 @@ class UbiservicesRouteHandler extends RouteHandler {
         this.registerPost(app, '/v3/users/:user', this.handlePostUsers);
         this.registerGet(app, '/v3/users/:user', this.handleGetUsers);
 
-        
-
-
         console.log(`[ROUTE] ${this.name} routes initialized`);
     }
 
@@ -162,22 +159,19 @@ class UbiservicesRouteHandler extends RouteHandler {
             const hashedTicket = crypto.createHash('sha256').update(`Ubi_v1 ${response.data.ticket}`).digest('hex');
             AccountService.updateUserTicket(response.data.profileId, hashedTicket);
         } catch (error) {
-            console.log("[ACC] Error fetching from Ubisoft services", error.message);
+            console.log("[ACC] Error fetching from Ubisoft services, falling back to cached/fake session", error.message);
 
             if (this.ipCache[clientIp]) {
-                console.log(`[ACC] Returning cached session for IP ${clientIp}`);
                 return res.send(this.ipCache[clientIp]);
             }
-
             const profileId = uuidv4();
             const userTicket = this.generateFalseTicket();
-            this.cachedTicket[userTicket] = profileId; // Store fake ticket to profileId mapping
-
-            console.log("[ACC] Generating Fake Session for", profileId);
+            
+            // Map the newly generated false ticket to our profile ID
+            this.cachedTicket[userTicket] = profileId;
 
             const fakeSession = this.generateSessionData(profileId, "NintendoSwitch", clientIp, clientIpCountry, userTicket);
-            this.ipCache[clientIp] = fakeSession; // Cache the fake session for this IP
-
+            this.ipCache[clientIp] = fakeSession;
             res.send(fakeSession);
         }
     }
@@ -240,14 +234,9 @@ class UbiservicesRouteHandler extends RouteHandler {
      * @param {Response} res - The response object
      */
     handleGetParametersJD22(req, res) {
-    res.send(this.replaceDomainPlaceholder(require("../../database/config/v1/parameters.json"), this.settings.server.domain));
+        res.send(this.replaceDomainPlaceholder(require("../../database/config/v1/parameters.json"), this.settings.server.domain));
     }
 
-    /**
-     * Serve application parameters for JD18
-     * @param {Request} req - The request object
-     * @param {Response} res - The response object
-     */
     /**
      * Serve application parameters for JD21
      * @param {Request} req - The request object
@@ -266,11 +255,6 @@ class UbiservicesRouteHandler extends RouteHandler {
         res.send(this.replaceDomainPlaceholder(require("../../database/config/v1/parameters2.json"), this.settings.server.domain));
     }
 
-    /**
-     * Handle user-related requests (stubbed for now)
-     * @param {Request} req - The request object
-     * @param {Response} res - The response object
-     */
     /**
      * Handle GET /v3/policies/:langID
      * @param {Request} req - The request object
