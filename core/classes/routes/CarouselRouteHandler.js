@@ -32,6 +32,13 @@ class CarouselRouteHandler extends RouteHandler {
         this.registerPost(app, "/carousel/v2/pages/jdtv", this.handleCarousel);
         this.registerPost(app, "/carousel/v2/pages/jdtv-nx", this.handleCarousel);
         this.registerPost(app, "/carousel/v2/pages/quests", this.handleCarousel);
+
+        // Debugging middleware to inspect incoming raw payload before hitting the main handler
+        app.use('/carousel/v2/pages/:mode', (req, res, next) => {
+            console.log('Raw body:', req.rawBody); // Note: Make sure raw body parsing is configured in your entry point
+            next();
+        });
+
         this.registerPost(app, "/carousel/v2/pages/:mode", this.handleCarouselPages);
         this.registerPost(app, "/carousel/v2/pages/upsell-videos", this.handleUpsellVideos);
 
