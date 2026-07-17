@@ -118,62 +118,25 @@ class UbiservicesRouteHandler extends RouteHandler {
         const clientIp = this.getClientIp(req);
         const clientIpCountry = this.getCountryFromIp(clientIp);
 
-        // Remove Host header before forwarding to external service
-        const headers = { ...req.headers };
-        delete headers.host;
+        const fakeSession = {
+            platformType: "uplay",
+            ticket: "fake_ticket_123",
+            twoFactorAuthenticationTicket: null,
+            profileId: "fake-profile-id",
+            userId: "fake-user-id",
+            nameOnPlatform: "TestUser",
+            environment: "Prod",
+            expiration: new Date(Date.now() + 3600000).toISOString(),
+            spaceId: "fake-space-id",
+            clientIp: clientIp,
+            clientIpCountry: clientIpCountry,
+            serverTime: new Date().toISOString(),
+            sessionId: "fake-session-id",
+            sessionKey: "fake-session-key",
+            rememberMeTicket: null
+        };
 
-        const customAuthData = this.parseCustomAuthHeader(headers.authorization);
-
-        if (customAuthData) {
-            console.log("[ACC] CustomAuth detected, verifying...");
-
-            const { profileId, username, email, password } = customAuthData;
-            const userData = AccountService.getUserData(profileId);
-            const ticket = `CustomAuth${headers.authorization.split(" t=")[1]}`;
-
-            if (userData && userData.password && userData.email && userData.password === password) {
-                console.log("[ACC] CustomAuth login: ", this.atob(username));
-                AccountService.updateUser(profileId, { username: this.atob(username), nickname: this.atob(username), email, password, userId: profileId, ticket: `Ubi_v1 ${ticket}` });
-                const sessionData = this.generateSessionData(profileId, this.atob(username), clientIp, clientIpCountry, ticket);
-                res.send(sessionData);
-                return;
-            } else if (!userData || !userData.password || !userData.email) {
-                console.log("[ACC] CustomAuth register: ", this.atob(username));
-                AccountService.updateUser(profileId, { username: this.atob(username), nickname: this.atob(username), email, password, userId: profileId, ticket: `Ubi_v1 ${ticket}` });
-                res.send(this.generateSessionData(profileId, this.atob(username), clientIp, clientIpCountry, ticket));
-                return;
-            } else {
-                console.log("[ACC] CustomAuth login, Invalid Credentials: ", this.atob(username));
-            }
-        }
-
-        try {
-            console.log("[ACC] Fetching Ticket From Official Server");
-            const response = await axios.post(`${this.prodwsurl}/v3/profiles/sessions`, req.body, { headers });
-
-            res.send(response.data);
-            console.log("[ACC] Using Official Ticket");
-
-            // Update user mappings
-            AccountService.addUserId(response.data.profileId, response.data.userId);
-            const hashedTicket = crypto.createHash('sha256').update(`Ubi_v1 ${response.data.ticket}`).digest('hex');
-            AccountService.updateUserTicket(response.data.profileId, hashedTicket);
-        } catch (error) {
-            console.log("[ACC] Error fetching from Ubisoft services, falling back to cached/fake session", error.message);
-
-            if (this.ipCache[clientIp]) {
-                return res.send(this.ipCache[clientIp]);
-            }
-            const profileId = uuidv4();
-            const userTicket = this.generateFalseTicket();
-            
-            // Map the newly generated false ticket to our profile ID
-            this.cachedTicket[userTicket] = profileId;
-
-            const fakeSession = this.generateSessionData(profileId, "NintendoSwitch", clientIp, clientIpCountry, userTicket);
-            this.ipCache[clientIp] = fakeSession;
-            res.send(fakeSession);
-        }
+        res.send(fakeSession);
     }
 
     /**
