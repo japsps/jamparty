@@ -72,8 +72,17 @@ class Core {
    * Configure Express middleware
    * @param {Express} app - The Express application instance
    */
-  configureMiddleware(app) {
-    // Intercept raw body for carousel POST requests BEFORE standard body parsers run
+    configureMiddleware(app) {
+    // Capture raw body BEFORE JSON parser
+    app.use((req, res, next) => {
+        let rawBody = '';
+        req.on('data', chunk => { rawBody += chunk; });
+        req.on('end', () => {
+            req.rawBody = rawBody;
+            console.log(`[RAW BODY] ${req.method} ${req.url}:`, rawBody);
+            next();
+        });
+    });
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
