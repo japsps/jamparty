@@ -71,9 +71,22 @@ class Core {
   /**
    * Configure Express middleware
    * @param {Express} app - The Express application instance
-   * @param {Express} express - The Express module
    */
   configureMiddleware(app) {
+    // Intercept raw body for carousel POST requests BEFORE standard body parsers run
+    app.use((req, res, next) => {
+        if (req.method === 'POST' && req.url.startsWith('/carousel')) {
+            let data = '';
+            req.on('data', chunk => { data += chunk; });
+            req.on('end', () => {
+                console.log('Raw carousel request body:', data);
+                next();
+            });
+        } else {
+            next();
+        }
+    });
+
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(requestIp.mw());
@@ -90,7 +103,7 @@ class Core {
 
     // Use centralized error handler
     app.use(ErrorHandler.createExpressErrorHandler());
-}
+  }
 
   /**
    * Initialize core route handlers
