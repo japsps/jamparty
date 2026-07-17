@@ -1,0 +1,8 @@
+{
+  "name": "AdminPanelPlugin",
+  "version": "1.0.0",
+  "description": "Secure admin panel for server management and maintenance",
+  "main": "AdminPanelPlugin.js",
+  "author": "OpenParty",
+  "execution": "init"
+}
