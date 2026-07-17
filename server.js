@@ -6,15 +6,7 @@
 // Import dependencies
 const settings = require('./settings.json');
 const Server = require('./core/classes/Server');
-const fs = require('fs');
-const path = require('path');
-const { getSavefilePath } = require('./core/helper');
-const dbPath = path.join(getSavefilePath(), 'openparty.db');
 
-if (fs.existsSync(dbPath)) {
-    fs.unlinkSync(dbPath);
-    console.log('[DB] Removed old database to recreate schema.');
-}
 
 console.log(`[MAIN] Starting OpenParty with class-based architecture`);
 
