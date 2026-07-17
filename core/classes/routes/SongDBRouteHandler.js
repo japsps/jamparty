@@ -71,7 +71,10 @@ class SongDBRouteHandler extends RouteHandler {
     handleSongdb(req, res) {
         if (!this.checkAuth(req, res)) return;
 
-        const skuId = req.header('X-SkuId') || "jd2022-pc-ww";
+        console.log("X-SkuId:", req.header("X-SkuId"));
+        console.log("Authorization:", req.header("Authorization"));
+
+        const skuId = req.header('X-SkuId') || "jd2017-pc-ww";
         const year = skuId.match(/jd(\d{4})/i)?.[1];
         const platform = skuId.match(/-(pc|durango|orbis|nx|wiiu)/i)?.[1];
         const isParty = skuId.startsWith("openparty");
