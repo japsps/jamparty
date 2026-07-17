@@ -1,8 +1,8 @@
 {
-  "Despacito_mapContent": {
-    "md5": "394a6d87d767aea40764d7f51ab1c127",
+  "JDCGeeBETA_mapContent": {
+    "md5": "70c06574cd45289f69fb1c2101acfbf8",
     "storageType": 0,
-    "url": "https://jd-s3.bc5f39.workers.dev/public/map/Despacito/pc/Despacito_MAIN_SCENE_PC.zip/394a6d87d767aea40764d7f51ab1c127.zip",
+    "url": "https://jd-jamsters.s3.us-east-005.backblazeb2.com/maps/JDCGeeBETA/pc/jdcgeebeta_main_scene_pc.zip",
     "version": 6
   }
 }
