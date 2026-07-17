@@ -137,7 +137,7 @@ class DefaultRouteHandler extends RouteHandler {
         this.registerGet(app, "/profile/v2/country", this.handleCountry);
 
         // Subscription and quest routes
-        this.registerPost(app, "/subscription/v1/refresh", this.handleSubscription);
+        this.registerGet(app, "/subscription/v1/refresh", this.handleSubscription);
         this.registerGet(app, "/questdb/v1/quests", this.handleQuests);
         this.registerGet(app, "/session-quest/v1/", this.handleSessionQuest);
 
