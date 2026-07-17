@@ -5,6 +5,29 @@
 const RouteHandler = require('./RouteHandler');
 const requestCountry = require("request-country");
 const settings = require('../../../settings.json');
+const path = require('path');
+
+// AWS SDK v3 Imports
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+
+// Backblaze B2 configuration – use environment variables for security
+const BACKBLAZE_ENDPOINT = process.env.BACKBLAZE_ENDPOINT || 's3.us-east-005.backblazeb2.com';
+const BACKBLAZE_BUCKET = process.env.BACKBLAZE_BUCKET;
+const BACKBLAZE_KEY_ID = process.env.BACKBLAZE_KEY_ID;
+const BACKBLAZE_APPLICATION_KEY = process.env.BACKBLAZE_APPLICATION_KEY;
+
+// Initialize S3 client for Backblaze (V3 Syntax)
+const s3 = new S3Client({
+    endpoint: `https://${BACKBLAZE_ENDPOINT}`,
+    credentials: {
+        accessKeyId: BACKBLAZE_KEY_ID,
+        secretAccessKey: BACKBLAZE_APPLICATION_KEY,
+    },
+    forcePathStyle: true, // Backblaze requires path-style routing
+    region: 'us-east-1'   // AWS SDK v3 requires a region structure even for custom endpoints
+});
+
 const core = {
     main: require('../../var').main,
     generatePlaylist: require('../../lib/playlist').generatePlaylist,
@@ -19,8 +42,7 @@ class DefaultRouteHandler extends RouteHandler {
     constructor() {
         super('DefaultRouteHandler');
         
-        // Load nohud list
-const path = require('path');
+        // Load nohud list (only used as fallback if Backblaze fails)
         this.chunk = core.loadJsonFile('nohud/chunk.json', path.join(__dirname, '../../../database/data/nohud/chunk.json'));
         
         // Active users tracking
@@ -53,9 +75,11 @@ const path = require('path');
      * @private
      */
     checkAuth(req, res) {
-        if (req.header('X-SkuId')) {
-            if (!(req.header('X-SkuId').startsWith("jd") || req.header('X-SkuId').startsWith("JD")) || !req.headers["authorization"].startsWith("Ubi")) {
-                const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+        const skuId = req.header('X-SkuId');
+        const authHeader = req.header('Authorization');
+
+        if (skuId) {
+            if (!(skuId.startsWith("jd") || skuId.startsWith("JD")) || !authHeader?.startsWith("Ubi")) {
                 res.status(400).send({
                     'error': 400,
                     'message': 'Bad request! Oops you didn\'t specify what file should we give you, try again'
@@ -67,7 +91,7 @@ const path = require('path');
             res.status(400).send({
                 'error': 400,
                 'message': 'Oopsie! We can\'t check that ur Request is valid',
-                'headder': req.headers
+                'header': req.headers
             });
             return false;
         }
@@ -122,7 +146,7 @@ const path = require('path');
         this.registerGet(app, "/constant-provider/v1/sku-constants", this.handleSkuConstants);
         this.registerGet(app, "/dance-machine/v1/blocks", this.handleDanceMachine);
 
-        // Content authorization route
+        // Content authorization route – this will now generate signed URLs on the fly
         this.registerGet(app, "/content-authorization/v1/maps/*", this.handleContentAuthorization);
 
         // Video routes
@@ -135,23 +159,71 @@ const path = require('path');
     }
 
     /**
-     * Handle package requests
+     * Handle package requests – returns signed URLs for map content from Backblaze B2
+     * Uses platform-specific file naming: maps/{MapName}/{mapNameLower}_main_scene_{platform}.zip
      * @param {Request} req - The request object
      * @param {Response} res - The response object
      */
-    handlePackages(req, res) {
+    async handlePackages(req, res) {
         if (!this.checkAuth(req, res)) return;
 
         const skuId = req.header('X-SkuId');
         const skuPackages = core.main.skupackages;
         const platforms = ['wiiu', 'nx', 'pc', 'durango', 'orbis'];
 
-        for (const platform of platforms) {
-            if (skuId.includes(platform)) {
-                res.send(skuPackages[platform]);
-                return;
+        // 1. Determine the platform from the skuId
+        let platform = null;
+        for (const p of platforms) {
+            if (skuId.includes(p)) {
+                platform = p;
+                break;
             }
         }
+        if (!platform) {
+            return res.status(400).send('Unsupported platform');
+        }
+
+        // 2. Get the static package list for this platform
+        let platformPackages = skuPackages[platform];
+        if (!platformPackages) {
+            return res.status(400).send('No packages for this platform');
+        }
+
+        // 3. Clone to avoid mutating the cached version
+        const signedPackages = { ...platformPackages };
+
+        // 4. Iterate over each map entry (keys ending with '_mapContent')
+        for (const [key, value] of Object.entries(signedPackages)) {
+            if (key.endsWith('_mapContent')) {
+                const mapName = key.replace('_mapContent', ''); // e.g., "JDCGeeBETA"
+                const mapNameLower = mapName.toLowerCase();    // e.g., "jdcgeebeta"
+
+                // Build the S3 key according to your bucket structure
+                const fileKey = `maps/${mapName}/${mapNameLower}_main_scene_${platform}.zip`;
+
+                try {
+                    // Create AWS SDK v3 command
+                    const command = new GetObjectCommand({
+                        Bucket: BACKBLAZE_BUCKET,
+                        Key: fileKey
+                    });
+                    
+                    // Generate presigned URL (expires in 8 minutes / 480 seconds)
+                    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 480 });
+                    
+                    // Replace the static URL with the signed one
+                    value.url = signedUrl;
+                } catch (error) {
+                    if (this.logger) {
+                        this.logger.error(`Failed to generate signed URL for ${mapName} (${platform}): ${error.message}`);
+                    } else {
+                        console.error(`Failed to generate signed URL for ${mapName} (${platform}):`, error);
+                    }
+                }
+            }
+        }
+
+        res.send(signedPackages);
     }
 
     /**
@@ -266,9 +338,10 @@ const path = require('path');
      * @param {Response} res - The response object
      */
     handleDanceMachine(req, res) {
-        if (req.header('X-SkuId').includes("pc")) {
+        const skuId = req.header('X-SkuId');
+        if (skuId.includes("pc")) {
             res.send(core.main.dancemachine_pc);
-        } else if (req.header('X-SkuId').includes("nx")) {
+        } else if (skuId.includes("nx")) {
             res.send(core.main.dancemachine_nx);
         } else {
             res.send('Invalid Game');
@@ -276,27 +349,62 @@ const path = require('path');
     }
 
     /**
-     * Handle content authorization requests
+     * Handle content authorization requests – generates signed URLs from Backblaze B2 on the fly.
+     * This replaces the static chunk.json lookup with dynamic, secure URLs.
      * @param {Request} req - The request object
      * @param {Response} res - The response object
      */
-    handleContentAuthorization(req, res) {
+    async handleContentAuthorization(req, res) {
         if (!this.checkAuth(req, res)) return;
 
-        const maps = req.url.split("/").pop();
+        // Extract map name from URL
+        const mapName = req.url.split('/').pop();
+
+        // Determine quality (default to HIGH if not provided)
+        const quality = req.query.quality || 'ULTRA';
+
+        // Build the S3 key – adjust folder structure to match your bucket
+        const fileKey = `maps/${mapName}/${mapName}_${quality}.webm`;
+
         try {
-            if (this.chunk[maps]) {
+            // Create AWS SDK v3 Command
+            const command = new GetObjectCommand({
+                Bucket: BACKBLAZE_BUCKET,
+                Key: fileKey
+            });
+
+            // Generate signed URL valid for 8 minutes (480 seconds)
+            const signedUrl = await getSignedUrl(s3, command, { expiresIn: 480 });
+
+            // Construct response with all quality variations using the same signed URL
+            const response = {
+                __class: "ContentAuthorizationEntry",
+                duration: 300,
+                changelist: 466919,
+                urls: {
+                    [`jmcs://jd-contents/${mapName}/${mapName}_ULTRA.webm`]: signedUrl,
+                    [`jmcs://jd-contents/${mapName}/${mapName}_HIGH.webm`]: signedUrl,
+                    [`jmcs://jd-contents/${mapName}/${mapName}_MID.webm`]: signedUrl,
+                    [`jmcs://jd-contents/${mapName}/${mapName}_LOW.webm`]: signedUrl,
+                    [`jmcs://jd-contents/${mapName}/${mapName}.ogg`]: signedUrl.replace(/\.webm$/, '.ogg')
+                }
+            };
+            res.send(response);
+        } catch (error) {
+            if (this.logger) {
+                this.logger.error(`Failed to generate signed URL for ${mapName}: ${error.message}`);
+            } else {
+                console.error(`Failed to generate signed URL for ${mapName}:`, error);
+            }
+            
+            // Fallback to static chunk.json if available
+            if (this.chunk[mapName]) {
                 const placeholder = core.CloneObject(require('../../../database/data/nohud/placeholder.json'));
-                placeholder.urls = this.chunk[maps];
+                placeholder.urls = this.chunk[mapName];
                 res.send(placeholder);
             } else {
-                const placeholder = core.CloneObject(require('../../../database/data/nohud/placeholder.json'));
-                placeholder.urls = {};
-                res.send(placeholder);
+                res.status(500).send('Failed to generate video URL');
             }
-        } catch (err) {
-            console.error(err);
-            res.status(500).send('Internal Server Error');
         }
     }
 
