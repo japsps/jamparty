@@ -3,8 +3,6 @@
  * Manages the HTTP server lifecycle
  */
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
 const Core = require('./Core');
 const Logger = require('../utils/logger');
 
@@ -31,17 +29,6 @@ class Server {
    */
   start() {
     this.logger.info(`Starting OpenParty server...`);
-    
-    // Remove old database to recreate schema on startup
-    try {
-      const dbPath = path.join(require('./core/helper').getSavefilePath(), 'openparty.db');
-      if (fs.existsSync(dbPath)) {
-        fs.unlinkSync(dbPath);
-        this.logger.info(`Removed old database to recreate schema.`);
-      }
-    } catch (err) {
-      this.logger.error(`Failed to check/remove old database: ${err.message}`);
-    }
     
     // Create and start the HTTP server
     this.server = this.app.listen(this.port, this.host, async () => { // Made callback async
