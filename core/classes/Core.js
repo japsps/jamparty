@@ -75,13 +75,22 @@ class Core {
    */
   configureMiddleware(app) {
     app.use(express.json());
-    app.use(express.urlencoded({ extended: true })); // Added for form data
-    // app.use(express.raw()); // If you need raw body parsing, uncomment this and ensure AdminPanelPlugin doesn't re-add it.
+    app.use(express.urlencoded({ extended: true }));
     app.use(requestIp.mw());
-    
+
+    // Log every incoming request
+    app.use((req, res, next) => {
+        console.log(
+            `[HTTP] ${req.method} ${req.originalUrl} ` +
+            `Host=${req.headers.host} ` +
+            `UA=${req.headers["user-agent"] || "unknown"}`
+        );
+        next();
+    });
+
     // Use centralized error handler
     app.use(ErrorHandler.createExpressErrorHandler());
-  }
+}
 
   /**
    * Initialize core route handlers
