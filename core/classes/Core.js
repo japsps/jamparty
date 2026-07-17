@@ -7,7 +7,7 @@ const { resolvePath } = require('../helper');
 const PluginManager = require('./PluginManager');
 const Router = require('./Router');
 const ErrorHandler = require('./ErrorHandler');
-const express = require('express'); // bodyParser is part of express now
+const express = require('express');
 const requestIp = require('../lib/ipResolver.js');
 const Logger = require('../utils/logger');
 
@@ -20,7 +20,7 @@ class Core {
     this.settings = settings;
     this.pluginManager = new PluginManager();
     this.router = new Router();
-    this.appInstance = null; // To store app instance for plugins if needed
+    this.appInstance = null;
     this.logger = new Logger('CORE');
   }
 
@@ -32,73 +32,43 @@ class Core {
    */
   async init(app, express, server) {
     this.logger.info('Initializing core...');
-    this.appInstance = app; // Store app instance
+    this.appInstance = app;
     
-    // Initialize the database
     const { initializeDatabase } = require('../database/sqlite');
     try {
         await initializeDatabase();
         this.logger.info('Database initialized successfully.');
     } catch (error) {
         this.logger.error('Failed to initialize database:', error);
-        process.exit(1); // Exit if database cannot be initialized
+        process.exit(1);
     }
 
-    // Set pluginManager on the app instance so plugins can access it
     app.set('pluginManager', this.pluginManager);
 
-    // Configure middleware
-    this.configureMiddleware(app); // express module not needed here anymore
+    this.configureMiddleware(app);
     
-    // Load plugins
     this.pluginManager.loadPlugins(this.settings.modules);
-    
-    // Initialize pre-load plugins
     this.pluginManager.initializePlugins(app, 'pre-load');
-    
-    // Initialize core routes
     this.initializeCoreRoutes(app);
-    
-    // Initialize regular plugins
     this.pluginManager.initializePlugins(app, 'init');
-    
-    // Add 404 handler
     this.configure404Handler(app);
     
     this.logger.info('Core initialized successfully');
   }
 
   /**
-   * Configure Express middleware
+   * Configure Express middleware – now captures raw body without consuming stream
    * @param {Express} app - The Express application instance
    */
-    configureMiddleware(app) {
-    // Capture raw body BEFORE JSON parser
-    app.use((req, res, next) => {
-        let rawBody = '';
-        req.on('data', chunk => { rawBody += chunk; });
-        req.on('end', () => {
-            req.rawBody = rawBody;
-            console.log(`[RAW BODY] ${req.method} ${req.url}:`, rawBody);
-            next();
-        });
-    });
-
-    app.use(express.json());
+  configureMiddleware(app) {
+    // Capture raw body using verify function (does NOT consume the stream)
+    app.use(express.json({
+      verify: (req, res, buf) => {
+        req.rawBody = buf.toString('utf8');
+      }
+    }));
     app.use(express.urlencoded({ extended: true }));
     app.use(requestIp.mw());
-
-    // Log every incoming request
-    app.use((req, res, next) => {
-        console.log(
-            `[HTTP] ${req.method} ${req.originalUrl} ` +
-            `Host=${req.headers.host} ` +
-            `UA=${req.headers["user-agent"] || "unknown"}`
-        );
-        next();
-    });
-
-    // Use centralized error handler
     app.use(ErrorHandler.createExpressErrorHandler());
   }
 
@@ -108,22 +78,17 @@ class Core {
    */
   initializeCoreRoutes(app) {
     try {
-      // Check if class-based route handlers exist, otherwise use legacy handlers
       try {
-        // Use the Router class to load and initialize all route handlers
         this.router.loadAllHandlers().initializeRoutes(app);
-        
         this.logger.info('Using class-based route handlers');
       } catch (err) {
         this.logger.error(`Error loading class-based route handlers: ${err.message}`);
-        // Fall back to legacy route handlers
         require('../route/rdefault').initroute(app);
         require('../route/account').initroute(app);
         require('../route/leaderboard').initroute(app);
         require('../route/ubiservices').initroute(app);
         this.logger.info('Using legacy route handlers');
       }
-      
       this.logger.info('Core routes initialized');
     } catch (error) {
       this.logger.error(`Error initializing core routes: ${error.message}`);
