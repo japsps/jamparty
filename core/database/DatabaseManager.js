@@ -40,7 +40,7 @@ class DatabaseManager {
                 } else {
                     this.logger.info('Connected to the SQLite database. this._db is now set.');
                     this._db.serialize(() => {
-                        // --- most_played ---
+                        // most_played
                         this._db.run(`CREATE TABLE IF NOT EXISTS most_played (
                             mapName TEXT PRIMARY KEY,
                             playCount INTEGER DEFAULT 0
@@ -48,7 +48,7 @@ class DatabaseManager {
                             if (err) this.logger.error('Error creating most_played table:', err.message);
                         });
 
-                        // --- leaderboard (full schema) ---
+                        // leaderboard (full schema)
                         this._db.run(`CREATE TABLE IF NOT EXISTS leaderboard (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             mapName TEXT NOT NULL,
@@ -71,7 +71,7 @@ class DatabaseManager {
                             if (err) this.logger.error('Error creating leaderboard table:', err.message);
                         });
 
-                        // --- dotw (full schema) ---
+                        // dotw (full schema)
                         this._db.run(`CREATE TABLE IF NOT EXISTS dotw (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             mapName TEXT NOT NULL,
@@ -95,7 +95,7 @@ class DatabaseManager {
                             if (err) this.logger.error('Error creating dotw table:', err.message);
                         });
 
-                        // --- user_profiles (with userId) ---
+                        // user_profiles (with all columns, including userId)
                         this._db.run(`CREATE TABLE IF NOT EXISTS user_profiles (
                             profileId TEXT PRIMARY KEY,
                             userId TEXT,
@@ -144,7 +144,7 @@ class DatabaseManager {
                             }
                         });
 
-                        // --- config ---
+                        // config
                         this._db.run(`CREATE TABLE IF NOT EXISTS config (
                             key TEXT PRIMARY KEY,
                             value TEXT
