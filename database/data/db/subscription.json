@@ -1,14 +1,14 @@
 {
     "validity": true,
     "errorCode": "",
-    "timeLeft": 110320241505,
-    "expiryTimeStamp": "110320241505",
+    "timeLeft": 999999999999,
+    "expiryTimeStamp": "999999999999",
     "platformId": "dffcb770-82e7-4b5d-b3e2-d33172abecea",
-    "trialActivated": false,
+    "trialActivated": true,
     "consoleHasTrial": true,
-    "trialTimeLeft": 110320241505,
-    "trialDuration": "110320241505",
-    "trialIsActive": false,
+    "trialTimeLeft": 999999999999,
+    "trialDuration": "999999999999",
+    "trialIsActive": true,
     "needEshopLink": false,
     "autoRefresh": true
 }
