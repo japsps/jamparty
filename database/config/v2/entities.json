@@ -7,7 +7,7 @@
 		"tags": [],
 		"obj": {
 			"name": "JMCS PROD",
-			"url": "http://{SettingServerDomainVarOJDP}"
+			"url": "http://jamparty-3.onrender.com/"
 		},
 		"lastModified": "",
 		"revision": 3
@@ -19,7 +19,7 @@
 		"tags": [],
 		"obj": {
 			"name": "JMCS PROD",
-			"url": "http://{SettingServerDomainVarOJDP}"
+			"url": "http://jamparty-3.onrender.com/"
 		},
 		"lastModified": "",
 		"revision": 3
