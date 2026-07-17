@@ -4,16 +4,15 @@
  */
 const RouteHandler = require('./RouteHandler');
 const CarouselService = require('../../services/CarouselService');
-const coreMain = require('../../var').main; // Assuming core.main is needed for various carousel data
+const coreMain = require('../../var').main;
 const Logger = require('../../utils/logger');
-const AccountService = require('../../services/AccountService'); // Import AccountService to get profileId
+const AccountService = require('../../services/AccountService');
 
 class CarouselRouteHandler extends RouteHandler {
     constructor() {
         super('CarouselRouteHandler');
         this.logger = new Logger('CarouselRouteHandler');
 
-        // Bind handler methods to maintain 'this' context
         this.handleCarousel = this.handleCarousel.bind(this);
         this.handleCarouselPages = this.handleCarouselPages.bind(this);
         this.handleUpsellVideos = this.handleUpsellVideos.bind(this);
@@ -26,19 +25,36 @@ class CarouselRouteHandler extends RouteHandler {
     initroute(app) {
         this.logger.info(`Initializing routes...`);
 
-        // Carousel routes
+        // --- Custom middleware for carousel to handle malformed JSON ---
+        // This runs BEFORE the global JSON parser (which is bypassed for this route)
+        app.use('/carousel/v2/pages/:mode', (req, res, next) => {
+            // We already captured rawBody in Core.js using verify
+            if (req.rawBody) {
+                let bodyString = req.rawBody;
+                // Remove surrounding single quotes if present (the game/proxy adds them)
+                if (bodyString.startsWith("'") && bodyString.endsWith("'")) {
+                    bodyString = bodyString.slice(1, -1);
+                }
+                try {
+                    req.body = JSON.parse(bodyString);
+                } catch (e) {
+                    this.logger.error(`Failed to parse carousel body: ${e.message}`);
+                    this.logger.error(`Raw body was: ${req.rawBody}`);
+                    return res.status(400).json({ error: 'Invalid JSON body' });
+                }
+            } else {
+                // Fallback if rawBody isn't captured (shouldn't happen)
+                req.body = req.body || {};
+            }
+            next();
+        });
+
+        // Register routes (the global JSON parser is still used for other routes, but this route's body is already set)
         this.registerPost(app, "/carousel/v2/pages/avatars", this.handleCarousel);
         this.registerPost(app, "/carousel/v2/pages/dancerprofile", this.handleCarousel);
         this.registerPost(app, "/carousel/v2/pages/jdtv", this.handleCarousel);
         this.registerPost(app, "/carousel/v2/pages/jdtv-nx", this.handleCarousel);
         this.registerPost(app, "/carousel/v2/pages/quests", this.handleCarousel);
-
-        // Debugging middleware to inspect incoming raw payload before hitting the main handler
-        app.use('/carousel/v2/pages/:mode', (req, res, next) => {
-            console.log('Raw body:', req.rawBody); // Note: Make sure raw body parsing is configured in your entry point
-            next();
-        });
-
         this.registerPost(app, "/carousel/v2/pages/:mode", this.handleCarouselPages);
         this.registerPost(app, "/carousel/v2/pages/upsell-videos", this.handleUpsellVideos);
 
@@ -84,7 +100,6 @@ class CarouselRouteHandler extends RouteHandler {
             search = req.body.searchTags[0];
         }
 
-        // Get profileId for personalization
         const profileId = req.query.profileId || await AccountService.findUserFromTicket(req.header('Authorization'));
 
         let action = null;
@@ -110,13 +125,10 @@ class CarouselRouteHandler extends RouteHandler {
         }
 
         if (isPlaylist) {
-            // Assuming core.generatePlaylist is still needed for playlist categories
-            // TODO: Potentially personalize playlists as well if needed in the future
             return res.json(require('../../lib/playlist').generatePlaylist().playlistcategory);
         }
 
         if (action != null) {
-            // Pass profileId to generateCarousel for personalization
             return res.send(await CarouselService.generateCarousel(search, action, profileId));
         }
         
