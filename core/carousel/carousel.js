@@ -94,10 +94,11 @@ function addJDVersion(songMapNames, type = "partyMap") {
 }
 
 exports.generateCarousel = async (search, type = "partyMap", profileId = null) => {
-  carousel = {};
-  carousel = CloneObject(cClass.rootClass);
-  carousel.actionLists = cClass.actionListsClass;
-  const allSongMapNames = SongService.getAllMapNames();
+  try {
+    carousel = {};
+    carousel = CloneObject(cClass.rootClass);
+    carousel.actionLists = cClass.actionListsClass;
+    const allSongMapNames = SongService.getAllMapNames();
 
   // Dynamic Carousel System
   addCategories(generateCategories(settings.server.modName, CloneObject(shuffleArray(allSongMapNames)), type)); // Shuffle main category
@@ -218,6 +219,14 @@ exports.generateCarousel = async (search, type = "partyMap", profileId = null) =
     addCategories(generateCategories(`[icon:SEARCH_RESULT] Result Of: ${search}`, CloneObject(SongService.filterSongsBySearch(allSongMapNames, search)), type));
   }
   return carousel;
+  } catch (error) {
+    logger.error(`Carousel generation failed: ${error.message}`);
+    logger.error(error.stack);
+    // Return an empty but valid carousel
+    const emptyCarousel = CloneObject(cClass.rootClass);
+    emptyCarousel.actionLists = cClass.actionListsClass;
+    return emptyCarousel;
+  }
 };
 
 exports.generateCoopCarousel = async (search) => JSON.parse(JSON.stringify(await exports.generateCarousel(search, "partyMapCoop")));
