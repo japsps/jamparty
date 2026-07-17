@@ -40,18 +40,15 @@ class DatabaseManager {
                 } else {
                     this.logger.info('Connected to the SQLite database. this._db is now set.');
                     this._db.serialize(() => {
-                        // Create most_played table
+                        // --- most_played ---
                         this._db.run(`CREATE TABLE IF NOT EXISTS most_played (
                             mapName TEXT PRIMARY KEY,
                             playCount INTEGER DEFAULT 0
                         )`, (err) => {
-                            if (err) {
-                                this.logger.error('Error creating most_played table:', err.message);
-                                return reject(err);
-                            }
+                            if (err) this.logger.error('Error creating most_played table:', err.message);
                         });
 
-                        // Create leaderboard table
+                        // --- leaderboard (full schema) ---
                         this._db.run(`CREATE TABLE IF NOT EXISTS leaderboard (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             mapName TEXT NOT NULL,
@@ -59,15 +56,22 @@ class DatabaseManager {
                             username TEXT NOT NULL,
                             score INTEGER NOT NULL,
                             timestamp TEXT NOT NULL,
+                            name TEXT,
+                            gameVersion TEXT,
+                            rank INTEGER,
+                            avatar TEXT,
+                            country TEXT,
+                            platformId TEXT,
+                            alias TEXT,
+                            aliasGender INTEGER,
+                            jdPoints INTEGER,
+                            portraitBorder TEXT,
                             UNIQUE(mapName, profileId)
                         )`, (err) => {
-                            if (err) {
-                                this.logger.error('Error creating leaderboard table:', err.message);
-                                return reject(err);
-                            }
+                            if (err) this.logger.error('Error creating leaderboard table:', err.message);
                         });
 
-                        // Create dotw (Dance of the Week) table
+                        // --- dotw (full schema) ---
                         this._db.run(`CREATE TABLE IF NOT EXISTS dotw (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             mapName TEXT NOT NULL,
@@ -88,21 +92,18 @@ class DatabaseManager {
                             portraitBorder TEXT,
                             UNIQUE(mapName, profileId, weekNumber)
                         )`, (err) => {
-                            if (err) {
-                                this.logger.error('Error creating dotw table:', err.message);
-                                return reject(err);
-                            }
+                            if (err) this.logger.error('Error creating dotw table:', err.message);
                         });
 
-                        // Create user_profiles table
+                        // --- user_profiles (with userId) ---
                         this._db.run(`CREATE TABLE IF NOT EXISTS user_profiles (
                             profileId TEXT PRIMARY KEY,
-                            userId TEXT, -- Already present
+                            userId TEXT,
                             username TEXT,
                             nickname TEXT,
                             name TEXT,
                             email TEXT,
-                            password TEXT, -- Consider hashing if storing sensitive passwords
+                            password TEXT,
                             ticket TEXT,
                             alias TEXT,
                             aliasGender INTEGER,
@@ -112,28 +113,28 @@ class DatabaseManager {
                             jdPoints INTEGER,
                             portraitBorder TEXT,
                             rank INTEGER,
-                            scores TEXT, -- JSON stored as TEXT
-                            favorites TEXT, -- JSON stored as TEXT
-                            songsPlayed TEXT, -- JSON array stored as TEXT
-                            progression TEXT, -- JSON stored as TEXT
-                            history TEXT, -- JSON stored as TEXT
+                            scores TEXT,
+                            favorites TEXT,
+                            songsPlayed TEXT,
+                            progression TEXT,
+                            history TEXT,
                             skin TEXT,
                             diamondPoints INTEGER,
-                            unlockedAvatars TEXT, -- JSON array stored as TEXT
-                            unlockedSkins TEXT, -- JSON array stored as TEXT
-                            unlockedAliases TEXT, -- JSON array stored as TEXT
-                            unlockedPortraitBorders TEXT, -- JSON array stored as TEXT
+                            unlockedAvatars TEXT,
+                            unlockedSkins TEXT,
+                            unlockedAliases TEXT,
+                            unlockedPortraitBorders TEXT,
                             wdfRank INTEGER,
                             stars INTEGER,
                             unlocks INTEGER,
-                            populations TEXT, -- JSON array stored as TEXT
-                            inProgressAliases TEXT, -- JSON array stored as TEXT
+                            populations TEXT,
+                            inProgressAliases TEXT,
                             language TEXT,
                             firstPartyEnv TEXT,
-                            syncVersions TEXT, -- JSON stored as TEXT
-                            otherPids TEXT, -- JSON array stored as TEXT
-                            stats TEXT, -- JSON stored as TEXT
-                            mapHistory TEXT, -- JSON stored as TEXT
+                            syncVersions TEXT,
+                            otherPids TEXT,
+                            stats TEXT,
+                            mapHistory TEXT,
                             createdAt TEXT,
                             updatedAt TEXT
                         )`, (err) => {
@@ -143,7 +144,7 @@ class DatabaseManager {
                             }
                         });
 
-                        // Create config table
+                        // --- config ---
                         this._db.run(`CREATE TABLE IF NOT EXISTS config (
                             key TEXT PRIMARY KEY,
                             value TEXT
