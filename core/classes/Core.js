@@ -12,10 +12,6 @@ const requestIp = require('../lib/ipResolver.js');
 const Logger = require('../utils/logger');
 
 class Core {
-  /**
-   * Create a new Core instance
-   * @param {Object} settings - Server settings from settings.json
-   */
   constructor(settings) {
     this.settings = settings;
     this.pluginManager = new PluginManager();
@@ -24,12 +20,6 @@ class Core {
     this.logger = new Logger('CORE');
   }
 
-  /**
-   * Initialize the core functionality
-   * @param {Express} app - The Express application instance
-   * @param {Express} express - The Express module
-   * @param {http.Server} server - The HTTP server instance
-   */
   async init(app, express, server) {
     this.logger.info('Initializing core...');
     this.appInstance = app;
@@ -56,26 +46,26 @@ class Core {
     this.logger.info('Core initialized successfully');
   }
 
-  /**
-   * Configure Express middleware – now captures raw body without consuming stream
-   * @param {Express} app - The Express application instance
-   */
   configureMiddleware(app) {
-    // Capture raw body using verify function (does NOT consume the stream)
-    app.use(express.json({
-      verify: (req, res, buf) => {
-        req.rawBody = buf.toString('utf8');
-      }
-    }));
+    // Conditional JSON parser: skip carousel routes (handled manually)
+    app.use((req, res, next) => {
+        if (req.url.startsWith('/carousel')) {
+            // Skip JSON parsing for carousel routes
+            next();
+        } else {
+            // Apply JSON parser with raw body capture for other routes
+            express.json({
+                verify: (req, res, buf) => {
+                    req.rawBody = buf.toString('utf8');
+                }
+            })(req, res, next);
+        }
+    });
     app.use(express.urlencoded({ extended: true }));
     app.use(requestIp.mw());
     app.use(ErrorHandler.createExpressErrorHandler());
   }
 
-  /**
-   * Initialize core route handlers
-   * @param {Express} app - The Express application instance
-   */
   initializeCoreRoutes(app) {
     try {
       try {
@@ -95,10 +85,6 @@ class Core {
     }
   }
 
-  /**
-   * Configure 404 handler for unmatched routes
-   * @param {Express} app - The Express application instance
-   */
   configure404Handler(app) {
     app.get('*', function(req, res) {
       res.status(404).send({
