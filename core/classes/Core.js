@@ -74,18 +74,6 @@ class Core {
    */
   configureMiddleware(app) {
     // Intercept raw body for carousel POST requests BEFORE standard body parsers run
-    app.use((req, res, next) => {
-        if (req.method === 'POST' && req.url.startsWith('/carousel')) {
-            let data = '';
-            req.on('data', chunk => { data += chunk; });
-            req.on('end', () => {
-                console.log('Raw carousel request body:', data);
-                next();
-            });
-        } else {
-            next();
-        }
-    });
 
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
