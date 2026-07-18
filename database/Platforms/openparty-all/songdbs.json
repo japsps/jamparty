@@ -66,11 +66,11 @@
 		],
 		"title": "Gee",
 		"urls": {
-			"jmcs://jd-contents/JDCGeeBeta/JDCGeeBETA_AudioPreview.ogg": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_AudioPreview.ogg",
-			"jmcs://jd-contents/JDCGeeBeta/JDCGeeBETA_MapPreviewNoSoundCrop_HIGH.vp8.webm": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_HIGH.vp8.webm",
-			"jmcs://jd-contents/JDCGeeBeta/JDCGeeBETA_MapPreviewNoSoundCrop_LOW.vp8.webm": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_LOW.vp8.webm",
-			"jmcs://jd-contents/JDCGeeBeta/JDCGeeBETA_MapPreviewNoSoundCrop_MID.vp8.webm": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_MID.vp8.webm",
-			"jmcs://jd-contents/JDCGeeBeta/JDCGeeBETA_MapPreviewNoSoundCrop_ULTRA.vp8.webm": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_ULTRA.vp8.webm"
+			"jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_AudioPreview.ogg": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_AudioPreview.ogg",
+			"jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_HIGH.vp8.webm": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_HIGH.vp8.webm",
+			"jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_LOW.vp8.webm": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_LOW.vp8.webm",
+			"jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_MID.vp8.webm": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_MID.vp8.webm",
+			"jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_ULTRA.vp8.webm": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_ULTRA.vp8.webm"
 		},
 		"customTypeName": "Gee",
 		"serverChangelist": 696566
