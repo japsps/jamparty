@@ -7,7 +7,7 @@
         "port": 80,
         "forcePort": false,
         "isPublic": true,
-        "enableSSL": true,
+        "enableSSL": false,
         "domain": "jamparty-3.onrender.com",
         "modName": "Just Dance Unlimited Mod",
         "serverstatus": {
