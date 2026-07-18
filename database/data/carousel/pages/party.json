@@ -1,12 +1,26 @@
 {
-    "__class": "JD_CarouselContent",
-    "categories": [{
-            "__class": "Category",
-            "title": "[icon:CROWN] Just Dance Party",
-            "act": "ui_carousel",
-            "isc": "grp_row",
-            "items": []
-        },
+	"__class": "JD_CarouselContent",
+	"categories": [
+		{
+			"__class": "Category",
+			"title": "[icon:CROWN] Just Dance Party",
+			"act": "ui_carousel",
+			"isc": "grp_row",
+			"items": [
+				{
+					"__class": "Item",
+					"isc": "grp_cover",
+					"act": "ui_component_base",
+					"components": [
+						{
+							"__class": "JD_CarouselContentComponent_Song",
+							"mapName": "JDCGeeBETA"
+						}
+					],
+					"actionList": "partyMap"
+				}
+			]
+		},
 		{
 			"__class": "Category",
 			"title": "[icon:SEARCH_FILTER] Search",
@@ -20,10 +34,6 @@
 					"isc": "grp_search",
 					"actionList": "search"
 				},
-				{
-					"__class": "Item",
-					"act": "ui_component_base",
-					"components": [
 				{
 					"__class": "Item",
 					"act": "ui_component_base",
@@ -89,45 +99,79 @@
 					"actionList": "searchPreset"
 				}
 			]
-				}
-			]
 		}
-  ],
-    "actionLists": {
-        "partyMap": {
-            "__class": "ActionList",
-            "actions": [{
-                    "__class": "Action",
-                    "bannerContext": "family_rival",
-                    "bannerTheme": "DEFAULT",
-                    "bannerType": "song",
-                    "title": "Dance",
-                    "type": "play-song"
-                }, {
-                    "__class": "Action",
-                    "bannerContext": "family_rival",
-                    "bannerTheme": "DEFAULT",
-                    "bannerType": "song",
-                    "title": "Add to favorites",
-                    "type": "set-favorite"
-                }, {
-                    "__class": "Action",
-                    "bannerContext": "family_rival",
-                    "bannerTheme": "DEFAULT",
-                    "bannerType": "song_leaderboard",
-                    "title": "Leaderboard",
-                    "type": "leaderboard"
-                }, {
-                    "__class": "Action",
-                    "bannerContext": "family_rival",
-                    "bannerTheme": "DEFAULT",
-                    "bannerType": "song_licensing",
-                    "title": "Credits",
-                    "type": "credits"
-                }
-            ],
-            "itemType": "map"
-        }
-    },
-    "songItemLists": {}
+	],
+	"actionLists": {
+		"partyMap": {
+			"__class": "ActionList",
+			"actions": [
+				{
+					"__class": "Action",
+					"bannerContext": "family_rival",
+					"bannerTheme": "DEFAULT",
+					"bannerType": "song",
+					"title": "Dance",
+					"type": "play-song"
+				},
+				{
+					"__class": "Action",
+					"bannerContext": "family_rival",
+					"bannerTheme": "DEFAULT",
+					"bannerType": "song",
+					"title": "Add to favorites",
+					"type": "set-favorite"
+				},
+				{
+					"__class": "Action",
+					"bannerContext": "family_rival",
+					"bannerTheme": "DEFAULT",
+					"bannerType": "song_leaderboard",
+					"title": "Leaderboard",
+					"type": "leaderboard"
+				},
+				{
+					"__class": "Action",
+					"bannerContext": "family_rival",
+					"bannerTheme": "DEFAULT",
+					"bannerType": "song_licensing",
+					"title": "Credits",
+					"type": "credits"
+				}
+			],
+			"itemType": "map"
+		},
+		"search": {
+			"__class": "ActionList",
+			"actions": [
+				{
+					"__class": "Action",
+					"bannerType": "SEARCH",
+					"title": "Search",
+					"type": "open-keyboard"
+				},
+				{
+					"__class": "Action",
+					"bannerContext": "default",
+					"bannerTheme": "DEFAULT",
+					"bannerType": "SEARCH",
+					"title": "Previous Search",
+					"type": "previous-search"
+				}
+			],
+			"itemType": "search"
+		},
+		"searchPreset": {
+			"__class": "ActionList",
+			"actions": [
+				{
+					"__class": "Action",
+					"bannerType": "SEARCH",
+					"title": "Search preset",
+					"type": "search-preset"
+				}
+			],
+			"itemType": "search"
+		}
+	},
+	"songItemLists": {}
 }
