@@ -16,6 +16,17 @@
     }
   },
   "modules": [
-    // ... keep your plugins as they are
+    {
+      "name": "HelloWorldPlugin",
+      "description": "A simple example plugin that demonstrates the plugin system",
+      "path": "{dirname}/plugins/HelloWorldPlugin.js",
+      "execution": "init"
+    },
+    {
+      "name": "AdminPanelPlugin",
+      "description": "Secure admin panel for server management and maintenance",
+      "path": "{dirname}/plugins/AdminPanelPlugin.js",
+      "execution": "init"
+    }
   ]
 }
