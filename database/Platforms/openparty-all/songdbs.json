@@ -1,19 +1,8 @@
 {
 	"JDCGeeBETA": {
-		"artist": "Girls Generation",
+		"artist": "Girls' Generation",
 		"assets": {
-			"nx": {
-				"banner_bkgImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/nx/jdcgeebeta_banner_bkg.tga.ckd",
-				"coverImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/nx/jdcgeebeta_cover_generic.tga.ckd",
-				"cover_1024ImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/nx/jdcgeebeta_cover_1024.tga.ckd",
-				"cover_smallImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/nx/jdcgeebeta_cover_online.tga.ckd",
-				"expandBkgImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/nx/jdcgeebeta_cover_albumbkg.tga.ckd",
-				"expandCoachImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/nx/jdcgeebeta_cover_albumcoach.tga.ckd",
-				"phoneCoverImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/jdcgeebeta_cover_phone.png",
-				"map_bkgImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/nx/jdcgeebeta_map_bkg.tga.ckd",
-				"coach1ImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/nx/jdcgeebeta_coach_1.tga.ckd",
-				"phoneCoach1ImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/jdcgeebeta_coach_1_phone.png"
-			},
+			"nx": {},
 			"x1": {},
 			"common": {
 				"map_bkgImageUrl": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/nx/jdcgeebeta_map_bkg.tga.ckd",
@@ -32,10 +21,10 @@
 		"difficulty": 1,
 		"doubleScoringType": -1,
 		"jdmAttributes": {},
-		"lyricsColor": "54ff00FF",
+		"lyricsColor": "FF69B4",
 		"lyricsType": 0,
 		"mainCoach": -1,
-		"mapLength": 0,
+		"mapLength": 340,
 		"mapName": "JDCGeeBETA",
 		"mapPreviewMpd": {
 			"videoEncoding": {
@@ -44,7 +33,7 @@
 			}
 		},
 		"mode": 6,
-		"originalJDVersion": 2,
+		"originalJDVersion": 3,
 		"packages": {
 			"mapContent": "JDCGeeBETA_mapContent"
 		},
@@ -62,9 +51,9 @@
 		"sweatDifficulty": 1,
 		"tags": [
 			"Main",
-			"freeSong"
+			"subscribedSong"
 		],
-		"title": "Gee",
+		"title": "Gee (Japanese Version)",
 		"urls": {
 			"jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_AudioPreview.ogg": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_AudioPreview.ogg",
 			"jmcs://jd-contents/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_HIGH.vp8.webm": "https://cdn.ovosimpatico.com/jdlo/maps/JDCGeeBETA/JDCGeeBETA_MapPreviewNoSoundCrop_HIGH.vp8.webm",
